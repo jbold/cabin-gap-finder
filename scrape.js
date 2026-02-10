@@ -261,7 +261,7 @@ function render() {
       + '<div class="gap-details"><div class="gap-cabin-name">'+g.cabin.replace(/ - .*/,'')+'</div>'
       + '<div class="gap-dates">'+dow(g.checkIn)+' '+fmt(g.checkIn)+' → '+fmt(g.checkOut)+'</div></div>'
       + '<span class="gap-badge n'+g.nights+'">'+g.nights+'N</span>'
-      + '<span class="min-badge '+(g.bookable?'ok':'blocked')+'">'+(g.bookable?'\\u2713':'\\u{1F512}')+' min:'+g.minStay+'</span>'
+      + '<span class="min-badge '+(g.bookable?'ok':'blocked')+'">'+(g.bookable?'\\u2713':'\\u{1F512}')+' minNights:'+g.minStay+'</span>'
       + '<div class="gap-rate"><strong>$'+g.totalRate+'</strong><br>'+(g.nights>1?'$'+g.nightlyRate+'/n':'')+'</div></div>';
   }
   if (mo) html += '</div>';
