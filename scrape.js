@@ -175,9 +175,12 @@ const html = `<!DOCTYPE html>
   }
 
   .gap-item {
-    display: flex; align-items: center; gap: 0.8rem; padding: 0.7rem 0;
-    border-bottom: 1px solid var(--border); transition: opacity 0.2s;
+    display: flex; align-items: center; gap: 0.8rem; padding: 0.7rem 0.5rem;
+    border-bottom: 1px solid var(--border); transition: all 0.2s;
+    border-left: 3px solid transparent; border-radius: 4px; margin: 0.2rem 0;
   }
+  .gap-item.blocked { background: #FFF5F5; border-left-color: #E53E3E; box-shadow: inset 0 0 12px rgba(229, 62, 62, 0.06); }
+  .gap-item.bookable { border-left-color: var(--green); background: #F7FFF7; }
   .gap-item:has(.gap-check.done) { opacity: 0.4; }
   .gap-item:has(.gap-check.done) .gap-details { text-decoration: line-through; }
 
@@ -200,9 +203,9 @@ const html = `<!DOCTYPE html>
   .gap-badge.n2 { background: #E8F5E9; color: #2E7D32; }
   .gap-badge.n3 { background: #E3F2FD; color: #1565C0; }
 
-  .min-badge { padding: 0.2rem 0.5rem; border-radius: 1rem; font-size: 0.65rem; font-weight: 600; flex-shrink: 0; }
-  .min-badge.blocked { background: #FFEBEE; color: #C62828; }
-  .min-badge.ok { background: #E8F5E9; color: #2E7D32; }
+  .min-badge { padding: 0.35rem 0.7rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; flex-shrink: 0; letter-spacing: 0.02em; }
+  .min-badge.blocked { background: #FFCDD2; color: #B71C1C; border: 1px solid #EF9A9A; }
+  .min-badge.ok { background: #C8E6C9; color: #1B5E20; border: 1px solid #A5D6A7; }
 
   .gap-rate { font-size: 0.8rem; color: var(--text-light); text-align: right; flex-shrink: 0; min-width: 60px; }
   .gap-rate strong { color: var(--text); }
@@ -253,7 +256,7 @@ function render() {
     const m = mk(g.checkIn);
     if (m !== mo) { if (mo) html += '</div>'; mo = m; html += '<div class="month-group"><div class="month-header">'+m+'</div>'; }
     const id = gid(g), done = ck[id] ? ' done' : '';
-    html += '<div class="gap-item"><div class="gap-check'+done+'" data-id="'+id+'"></div>'
+    html += '<div class="gap-item '+(g.bookable?'bookable':'blocked')+'"><div class="gap-check'+done+'" data-id="'+id+'"></div>'
       + '<img class="gap-cabin-img" src="'+g.picture+'" alt="" loading="lazy" onerror="this.style.display=\\'none\\'">'
       + '<div class="gap-details"><div class="gap-cabin-name">'+g.cabin.replace(/ - .*/,'')+'</div>'
       + '<div class="gap-dates">'+dow(g.checkIn)+' '+fmt(g.checkIn)+' → '+fmt(g.checkOut)+'</div></div>'
