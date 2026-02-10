@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gap Nights — Bob's Cabins on Lake Superior</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --blue: #296DA8;
+    --blue-light: #40AADC;
+    --burgundy: #8D2C3B;
+    --cream: #FFFEF8;
+    --sand: #F5F0E8;
+    --text: #2C3E50;
+    --text-light: #6B7C8D;
+    --green: #2D8A56;
+    --border: #E0D8CC;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--blue) 0%, #1E4D7B 100%);
+    color: white;
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+
+  header h1 {
+    font-weight: 300;
+    font-size: 1.6rem;
+    letter-spacing: 0.02em;
+  }
+
+  header h1 strong { font-weight: 600; }
+
+  header .subtitle {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    margin-top: 0.3rem;
+  }
+
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding: 1.2rem 1.5rem;
+    background: var(--sand);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat .num {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--blue);
+  }
+
+  .stat .num.done { color: var(--green); }
+
+  .stat .label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-light);
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+  }
+
+  .progress-bar .fill {
+    height: 100%;
+    background: var(--green);
+    transition: width 0.3s ease;
+  }
+
+  .filters {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filters label {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-right: 0.3rem;
+  }
+
+  .filter-btn {
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    background: white;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--text);
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover { border-color: var(--blue-light); }
+  .filter-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+
+  .month-group {
+    padding: 0 1.5rem;
+  }
+
+  .month-header {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--blue);
+    padding: 1.2rem 0 0.5rem;
+    border-bottom: 2px solid var(--blue);
+    margin-bottom: 0.5rem;
+    position: sticky;
+    top: 0;
+    background: var(--cream);
+    z-index: 10;
+  }
+
+  .gap-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--border);
+    transition: opacity 0.2s;
+  }
+
+  .gap-item.checked {
+    opacity: 0.4;
+  }
+
+  .gap-item.checked .gap-details { text-decoration: line-through; }
+
+  .gap-check {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    background: white;
+  }
+
+  .gap-check:hover { border-color: var(--green); }
+  .gap-item.checked .gap-check { background: var(--green); border-color: var(--green); }
+  .gap-item.checked .gap-check::after { content: '✓'; color: white; font-size: 14px; font-weight: 600; }
+
+  .gap-cabin-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .gap-details {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .gap-cabin-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
+  .gap-dates {
+    font-size: 0.8rem;
+    color: var(--text-light);
+  }
+
+  .gap-badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 1rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .gap-badge.n1 { background: #FFF3E0; color: #E65100; }
+  .gap-badge.n2 { background: #E8F5E9; color: #2E7D32; }
+  .gap-badge.n3 { background: #E3F2FD; color: #1565C0; }
+
+  .gap-rate {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    text-align: right;
+    flex-shrink: 0;
+    min-width: 60px;
+  }
+
+  .gap-rate strong { color: var(--text); }
+
+  footer {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    font-size: 0.7rem;
+    color: var(--text-light);
+  }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 600px) {
+    .gap-cabin-img { width: 40px; height: 40px; }
+    .gap-rate { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><strong>Gap Nights</strong> — Bob's Cabins on Lake Superior</h1>
+  <div class="subtitle">2026 Season: May 11 – Oct 19</div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="num" id="total">—</div><div class="label">Total Gaps</div></div>
+  <div class="stat"><div class="num done" id="done">0</div><div class="label">Handled</div></div>
+  <div class="stat"><div class="num" id="remaining">—</div><div class="label">Remaining</div></div>
+</div>
+
+<div class="progress-bar"><div class="fill" id="progress" style="width:0%"></div></div>
+
+<div class="filters">
+  <label>Nights:</label>
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="1">1-Night</button>
+  <button class="filter-btn" data-filter="2">2-Night</button>
+  <button class="filter-btn" data-filter="3">3-Night</button>
+</div>
+
+<div id="list"></div>
+
+<footer>
+  <div>Generated <span id="generated"></span></div>
+  <div>Data from innroad booking engine</div>
+</footer>
+
+<script>
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function formatDate(iso) {
+  const d = new Date(iso + 'T12:00:00');
+  return `${MONTHS[d.getMonth()]} ${d.getDate()}`;
+}
+
+function dayOfWeek(iso) {
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  return days[new Date(iso + 'T12:00:00').getDay()];
+}
+
+function monthKey(iso) {
+  const d = new Date(iso + 'T12:00:00');
+  return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+// State
+let checkedState = JSON.parse(localStorage.getItem('cabin-gaps-checked') || '{}');
+let activeFilter = 'all';
+
+function saveState() {
+  localStorage.setItem('cabin-gaps-checked', JSON.stringify(checkedState));
+}
+
+function gapId(g) { return `${g.cabin}|${g.checkIn}`; }
+
+function render(gaps) {
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+
+  let currentMonth = null;
+
+  const filtered = activeFilter === 'all' ? gaps : gaps.filter(g => g.nights === parseInt(activeFilter));
+
+  for (const g of filtered) {
+    const mk = monthKey(g.checkIn);
+    if (mk !== currentMonth) {
+      currentMonth = mk;
+      const h = document.createElement('div');
+      h.className = 'month-group';
+      h.innerHTML = `<div class="month-header">${mk}</div>`;
+      list.appendChild(h);
+    }
+
+    const id = gapId(g);
+    const isChecked = !!checkedState[id];
+    const container = list.lastElementChild;
+
+    const item = document.createElement('div');
+    item.className = `gap-item${isChecked ? ' checked' : ''}`;
+    item.dataset.nights = g.nights;
+    item.innerHTML = `
+      <div class="gap-check" data-id="${id}"></div>
+      <img class="gap-cabin-img" src="${g.picture}" alt="" loading="lazy" onerror="this.style.display='none'">
+      <div class="gap-details">
+        <div class="gap-cabin-name">${g.cabin.replace(/ - .*/, '')}</div>
+        <div class="gap-dates">${dayOfWeek(g.checkIn)} ${formatDate(g.checkIn)} → ${formatDate(g.checkOut)}</div>
+      </div>
+      <span class="gap-badge n${g.nights}">${g.nights}N</span>
+      <div class="gap-rate"><strong>$${g.totalRate}</strong><br>${g.nights > 1 ? '$' + g.nightlyRate + '/n' : ''}</div>
+    `;
+    container.appendChild(item);
+  }
+
+  updateStats(gaps);
+}
+
+function updateStats(gaps) {
+  const total = gaps.length;
+  const done = gaps.filter(g => checkedState[gapId(g)]).length;
+  document.getElementById('total').textContent = total;
+  document.getElementById('done').textContent = done;
+  document.getElementById('remaining').textContent = total - done;
+  document.getElementById('progress').style.width = total ? (done / total * 100) + '%' : '0%';
+}
+
+// Event delegation
+document.getElementById('list').addEventListener('click', (e) => {
+  const check = e.target.closest('.gap-check');
+  if (!check) return;
+  const id = check.dataset.id;
+  checkedState[id] = !checkedState[id];
+  if (!checkedState[id]) delete checkedState[id];
+  saveState();
+  check.closest('.gap-item').classList.toggle('checked');
+  updateStats(window._gaps);
+});
+
+document.querySelector('.filters').addEventListener('click', (e) => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = btn.dataset.filter;
+  render(window._gaps);
+});
+
+// Load data
+fetch('gaps.json')
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById('generated').textContent = new Date(d.generated).toLocaleDateString();
+    window._gaps = d.gaps;
+    render(d.gaps);
+  });
+</script>
+</body>
+</html>
