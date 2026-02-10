@@ -63,6 +63,9 @@ for (const r of raw) {
   else console.error(`  ${r.range} FAILED`);
 }
 
+await Bun.write("data/raw.json", JSON.stringify(allData, null, 2));
+console.log("Wrote data/raw.json — inspect for min-stay fields");
+
 // --- Find gaps ---
 
 const cabins = {};
@@ -72,10 +75,12 @@ for (const month of allData) {
     cabins[c.name] ??= {};
     meta[c.name] ??= { id: c.id, picture: c.picture ?? "", maxPersons: c.maxPersons ?? 0 };
     for (const r of c.rates) {
+      const minRule = r.rules?.find(x => x.ruleTypeId === 1);
       cabins[c.name][r.effectiveDate.slice(0, 10)] = {
         avail: r.isRoomAvailable,
         rate: r.baseAfterTax.value,
         cur: r.baseAfterTax.currencyCode,
+        minStay: minRule?.ruleValue ?? 1,
       };
     }
   }
@@ -97,9 +102,11 @@ for (const name of Object.keys(cabins).sort()) {
     } else {
       if (run >= 1 && run <= 3) {
         const totalRate = Array.from({ length: run }, (_, j) => cabins[name][addDays(runStart, j)]?.rate ?? 0).reduce((a, b) => a + b, 0);
+        const minStay = cabins[name][runStart]?.minStay ?? 1;
         gaps.push({
           cabin: name, cabinId: m.id, picture: m.picture, maxGuests: m.maxPersons,
           checkIn: runStart, checkOut: addDays(runStart, run), nights: run,
+          minStay, bookable: run >= minStay,
           nightlyRate: cabins[name][runStart]?.rate ?? 0, totalRate, currency: "USD",
           bookingUrl: `https://bobscabinsonlakesuperior.client.innroad.com/room/${m.id}?checkIn=${runStart}&checkOut=${addDays(runStart, run)}&adults=2&children=0`,
         });
@@ -193,6 +200,10 @@ const html = `<!DOCTYPE html>
   .gap-badge.n2 { background: #E8F5E9; color: #2E7D32; }
   .gap-badge.n3 { background: #E3F2FD; color: #1565C0; }
 
+  .min-badge { padding: 0.2rem 0.5rem; border-radius: 1rem; font-size: 0.65rem; font-weight: 600; flex-shrink: 0; }
+  .min-badge.blocked { background: #FFEBEE; color: #C62828; }
+  .min-badge.ok { background: #E8F5E9; color: #2E7D32; }
+
   .gap-rate { font-size: 0.8rem; color: var(--text-light); text-align: right; flex-shrink: 0; min-width: 60px; }
   .gap-rate strong { color: var(--text); }
 
@@ -247,6 +258,7 @@ function render() {
       + '<div class="gap-details"><div class="gap-cabin-name">'+g.cabin.replace(/ - .*/,'')+'</div>'
       + '<div class="gap-dates">'+dow(g.checkIn)+' '+fmt(g.checkIn)+' → '+fmt(g.checkOut)+'</div></div>'
       + '<span class="gap-badge n'+g.nights+'">'+g.nights+'N</span>'
+      + '<span class="min-badge '+(g.bookable?'ok':'blocked')+'">'+(g.bookable?'\\u2713':'\\u{1F512}')+' min:'+g.minStay+'</span>'
       + '<div class="gap-rate"><strong>$'+g.totalRate+'</strong><br>'+(g.nights>1?'$'+g.nightlyRate+'/n':'')+'</div></div>';
   }
   if (mo) html += '</div>';
