@@ -107,23 +107,24 @@ function findGaps(name, meta, avail) {
   console.log('Authenticated. Fetching availability...');
 
   const chunks = monthChunks(SEASON_START, SEASON_END);
-  const allData = [];
 
-  for (const [start, end] of chunks) {
-    const r = await page.evaluate(async ({ t, s, e, api }) => {
-      const res = await fetch(`${api}/availability?startDate=${s}&endDate=${e}`, {
+  // Fetch all months in parallel
+  const results = await page.evaluate(async ({ t, chunks, api }) => {
+    const fetches = chunks.map(([s, e]) =>
+      fetch(`${api}/availability?startDate=${s}&endDate=${e}`, {
         headers: { 'Accept-Language': 'en-US', 'vnd-innroad-booking-engine-session': t }
-      });
-      const newTk = res.headers.get('vnd-innroad-booking-engine-session');
-      return { s: res.status, d: await res.text(), tk: newTk };
-    }, { t: token, s: start, e: end, api: BOOKING_API });
+      }).then(async res => ({ s: res.status, d: await res.text(), range: `${s} → ${e}` }))
+    );
+    return Promise.all(fetches);
+  }, { t: token, chunks, api: BOOKING_API });
 
-    if (r.tk) token = r.tk;
+  const allData = [];
+  for (const r of results) {
     if (r.s === 200) {
       allData.push(JSON.parse(r.d));
-      console.log(`  ${start} → ${end} ✓`);
+      console.log(`  ${r.range} ✓`);
     } else {
-      console.error(`  ${start} → ${end} FAILED (${r.s})`);
+      console.error(`  ${r.range} FAILED (${r.s})`);
     }
   }
 
