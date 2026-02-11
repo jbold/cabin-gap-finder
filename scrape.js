@@ -255,7 +255,7 @@ function render() {
   for (const g of gaps) {
     const m = mk(g.checkIn);
     if (m !== mo) { if (mo) html += '</div>'; mo = m; html += '<div class="month-group"><div class="month-header">'+m+'</div>'; }
-    const id = gid(g), done = ck[id] ? ' done' : '';
+    const id = gid(g), done = (ck[id] || g.bookable) ? ' done' : '';
     html += '<div class="gap-item '+(g.bookable?'bookable':'blocked')+'"><div class="gap-check'+done+'" data-id="'+id+'"></div>'
       + '<img class="gap-cabin-img" src="'+g.picture+'" alt="" loading="lazy" onerror="this.style.display=\\'none\\'">'
       + '<div class="gap-details"><div class="gap-cabin-name">'+g.cabin.replace(/ - .*/,'')+'</div>'
@@ -266,7 +266,7 @@ function render() {
   }
   if (mo) html += '</div>';
   document.getElementById('list').innerHTML = html;
-  const total = DATA.gaps.length, done = DATA.gaps.filter(g => ck[gid(g)]).length;
+  const total = DATA.gaps.length, done = DATA.gaps.filter(g => ck[gid(g)] || g.bookable).length;
   document.getElementById('total').textContent = total;
   document.getElementById('done').textContent = done;
   document.getElementById('remaining').textContent = total - done;
