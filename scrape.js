@@ -106,7 +106,7 @@ for (const name of Object.keys(cabins).sort()) {
         gaps.push({
           cabin: name, cabinId: m.id, picture: m.picture, maxGuests: m.maxPersons,
           checkIn: runStart, checkOut: addDays(runStart, run), nights: run,
-          minStay, bookable: run >= minStay,
+          minStay, bookable: minStay === run,
           nightlyRate: cabins[name][runStart]?.rate ?? 0, totalRate, currency: "USD",
           bookingUrl: `https://bobscabinsonlakesuperior.client.innroad.com/room/${m.id}?checkIn=${runStart}&checkOut=${addDays(runStart, run)}&adults=2&children=0`,
         });
